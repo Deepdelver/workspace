@@ -1,7 +1,8 @@
-# HEARTBEAT.md Template
+# HEARTBEAT.md
 
-```markdown
-# Keep this file empty (or with only comments) to skip heartbeat API calls.
+# Tasks to run on each heartbeat
 
-# Add tasks below when you want the agent to check something periodically.
-```
+- Check for updates to OpenClaw documentation: fetch https://docs.openclaw.ai/llms.txt and compare with local copy; if changed, update wiki synthesis and notify.
+- Pull latest changes from git repository in ~/workspace (if any) and commit local changes.
+- Run wiki lint and update metadata.
+- Run proactive loop check (ensure proactive_loop.sh is running).
