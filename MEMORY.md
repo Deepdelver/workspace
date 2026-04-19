@@ -52,3 +52,69 @@
 
 ---
 *Always commit changes to ~/k8s-stack before expecting ArgoCD to sync to cluster.*
+
+---
+
+# Home Assistant Troubleshooting - 2026-04-18
+
+## Probleem
+Frontend toonde slechts 3 automations terwijl API 120+ toonde. HA in safe mode.
+
+## Oorzaak
+1. Duplicate `template:` keys in configuration.yaml (regels 653, 724, 747)
+2. Deprecated integraties: `color_extractor:`, `ambient_extractor:`
+3. **MAIN FIX**: configuration.yaml laadde slechts 1 bestand i.p.v. hele directory
+   - `automation: !include automations.yaml` (1 bestand, 43 regels)
+   - Moet zijn: `automation: !include_dir_merge_list automation` (directory)
+
+## Oplossing
+1. Deprecated opties uitgecomment in configuration.yaml
+2. configuration.yaml fix: `!include_dir_merge_list automation`
+3. Backup automations.yaml.bak (74 automations) gekopieerd naar automation/ folder
+4. `ha core restart` uitgevoerd
+
+## Resultaat
+- API: 76 automations geladen ✅
+- Frontend: Toont nu alles ✅
+
+## Leerpunten
+- Check altijd `ha core check` bij HA problemen
+- Duplicate YAML keys zijn fatal
+- Deprecated integraties、及时 verwijderen
+- `!include` vs `!include_dir_merge_list` - verschil matters
+- backup bestanden bevatten vaak meer automations dan actieve config
+- API shows count ≠ frontend count = config problem
+
+---
+
+## Zigbee2MQTT Troubleshooting (2026-04-18)
+
+### Probleem
+WC en Gang lampen toonden "unavailable" in Home Assistant.
+
+### Oorzaak
+Lampen waren fysiek offline omdat wandschakelaars uit stonden. Check `last_seen` in Zigbee2MQTT state.json:
+```bash
+ssh root@192.168.1.251 "cat /config/zigbee2mqtt/state.json"
+```
+
+### Oplossing
+- WC lamp hersteld door `switch.wc_switch_switch_1` aan te zetten via API
+- Gang lamp heeft fysieke wandschakelaar nodig
+
+### Leerpunt
+Bij "unavailable" Zigbee lampen: altijd eerst fysieke schakelaars controleren.
+
+---
+
+## Home Assistant Config
+- URL: https://deepdelver.duckdns.org:8123
+- SSH: root@192.168.1.251
+- Zigbee2MQTT state: /config/zigbee2mqtt/state.json
+
+## Troubleshooting Les (2026-04-18)
+**Regel: Check simpelste oorzaak EERST!**
+- Fysieke dingen (schakelaars, stekkers, stroom) vóór netwerk/config issues
+- Bij "unavailable" entities: check `last_seen` in device state voordat je hele subsystemen blamed
+- Zelfs als andere apparaten werken, kunnen individuele devices offline zijn
+- Vooroordeel vermijden: "dit werkt" betekent niet "alles werkt"
