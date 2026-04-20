@@ -1,0 +1,1 @@
+{ "escalation": { "subtasks_threshold": 5, "workload_score_threshold": 6, "scope": "global" } }

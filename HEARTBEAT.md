@@ -94,4 +94,8 @@ else
     echo "Researcher wiki pipeline script not found."
 fi
 
+# 8️⃣ Update free models automatically
+echo "Updating free models fallback list..."
+/home/frank/.openclaw/scripts/fix-fallback-models.sh
+
 echo "Heartbeat completed at $(date)"

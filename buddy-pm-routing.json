@@ -1,0 +1,14 @@
+{
+  "inbound_to_pm": true,
+  "pm_escalation": {
+    "enabled": true,
+    "threshold_subtasks": 5,
+    "threshold_workload": 6,
+    "scope": "global"
+  },
+  "ha_delegation": {
+    "source": "buddy",
+    "target_agent": "home-assistant" 
+  },
+  "default_channel": "telegram"
+}
