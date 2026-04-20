@@ -44,18 +44,6 @@ else
     echo "ArgoCD CLI not installed; skipping sync"
 fi
 
-# ==== OPENCLAW CONFIG SYNC ====
-# Sync ~/.openclaw changes to git
-cd /home/frank/.openclaw || { echo ".openclaw dir not found"; exit 1; }
-git pull --quiet
-if ! git diff --quiet; then
-    git add -A
-    git commit -m "OpenClaw config auto‑commit: $(date +%Y-%m-%d\ %H:%M)"
-    git push origin main
-else
-    echo "No changes to commit in .openclaw"
-fi
-
 # ==== LOGS & EXPERT AGENT ====
 
 # 4️⃣ Scan OpenClaw logs for errors and trigger expert agent if needed
