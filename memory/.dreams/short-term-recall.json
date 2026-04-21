@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-04-21T19:04:04.189Z",
+  "updatedAt": "2026-04-21T20:16:19.126Z",
   "entries": {
     "memory:memory/.dreams/session-corpus/2026-04-16.txt:1:1": {
       "key": "memory:memory/.dreams/session-corpus/2026-04-16.txt:1:1",
@@ -91297,15 +91297,16 @@
       "endLine": 81,
       "source": "memory",
       "snippet": "- Added evidence to `openclaw-documentation-update-detected.md` claim about llms.txt changes. - Revised broken links in OpenClaw docs to valid internal links (e.g., `/channels/telegram` -> `telegram-channel.md`). 4. Heartbeat now operational and scheduled to run every 15-30 minutes. ## Session Summary - 2026-04-20 15:11 CEST - Mission-Control: ImagePullBackOff due to containerd trying HTTPS to internal registry; local image present but deployment still references registry URL. Need to ensure deployment uses image: mission-control:latest and imagePullPolicy: IfNotPresent. Also consider configuring containerd insecure registry. - Litellm-router: OOMKilled due to low memory limit (256Mi).",
-      "recallCount": 1,
+      "recallCount": 2,
       "dailyCount": 0,
       "groundedCount": 0,
-      "totalScore": 0.6634326614424197,
+      "totalScore": 1.1203071661278217,
       "maxScore": 0.6634326614424197,
       "firstRecalledAt": "2026-04-21T19:04:04.189Z",
-      "lastRecalledAt": "2026-04-21T19:04:04.189Z",
+      "lastRecalledAt": "2026-04-21T20:16:19.126Z",
       "queryHashes": [
-        "664d6468fe19"
+        "664d6468fe19",
+        "2b51405e757d"
       ],
       "recallDays": [
         "2026-04-21"
