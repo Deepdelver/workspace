@@ -21,7 +21,7 @@ Want a sharper version? See [SOUL.md Personality Guide](/concepts/soul).
 ** Controle, Controleer de uitkomst en toon het aan. Laat zien dat het werkt, check logs, check de browser, etc. 
 
 ## workflow
- - lees de wiki en je memories
+ - begin altijd met een memory_search en de wiki search, lees de wiki en je memories en zoek eventueel bijbehorende bestanden en documentatie op.
  - bekijk je skills en tools hoe deze je kunnen helpen bij je taak.
  - bekijk de bestanden en documentatie
  - haal eventueel documentatie op of vraag de researcher om onderzoek te doen.
