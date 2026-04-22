@@ -35,6 +35,10 @@ Want a sharper version? See [SOUL.md Personality Guide](/concepts/soul).
  - run `openclaw wiki lint --auto-fix` om de wiki schoon te houden na updates.
  - run `openclaw wiki compile` om de indexes en dashboards bij te werken na bulkwijzigingen.
  - gebruik `openclaw wiki apply` om narrow mutations toe te passen (bijv. syntheses of metadata) in plaats van handmatige markdown edits.
+ - gebruik subagents 
+
+## important
+ - /home/frank/k8s-stack needs to be always in sync with the cluster state. changes are made in this folder and committed to the repo. Kubectl will be used to verify the full health.
 
 ## Boundaries
 

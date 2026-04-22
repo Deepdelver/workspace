@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-04-22T01:03:33.488Z",
+  "updatedAt": "2026-04-22T17:48:29.239Z",
   "entries": {
     "memory:memory/.dreams/session-corpus/2026-04-16.txt:1:1": {
       "key": "memory:memory/.dreams/session-corpus/2026-04-16.txt:1:1",
@@ -106231,6 +106231,37 @@
         "exists",
         "context",
         "follow"
+      ]
+    },
+    "memory:memory/2026-04-20.md:17:37": {
+      "key": "memory:memory/2026-04-20.md:17:37",
+      "path": "memory/2026-04-20.md",
+      "startLine": 17,
+      "endLine": 37,
+      "source": "memory",
+      "snippet": "- If user approves, perform the wiki update (via wiki_apply or direct edits) and run wiki_lint/wiki_compile as needed. - Ensure we do not modify bootstrap/reference docs (MEMORY.md, SOUL.md, TOOLS.md, AGENTS.md). - Data sources / references: - Crawled content: /tmp/litellm_docs.md (LiteLLM documentation page content) - Writable wiki actions will be performed through OpenClaw wiki tools (or via the wiki maintenance process). - Safety / privacy: - This is internal memory. No external exfiltration. - Content will be stored in memory and linked to wiki updates as per user instruction. - Latest action plan (current task): - Created wiki synthesis: \"LiteLLM Documentation (Full Cra",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.6460781026536349,
+      "maxScore": 0.6460781026536349,
+      "firstRecalledAt": "2026-04-22T17:48:29.239Z",
+      "lastRecalledAt": "2026-04-22T17:48:29.239Z",
+      "queryHashes": [
+        "afb7169193f3"
+      ],
+      "recallDays": [
+        "2026-04-22"
+      ],
+      "conceptTags": [
+        "wiki-apply",
+        "wiki-lint/wiki-compile",
+        "bootstrap/reference",
+        "memory.md",
+        "soul.md",
+        "tools.md",
+        "agents.md",
+        "tmp/litellm-docs.md"
       ]
     }
   }
