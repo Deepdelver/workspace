@@ -48,6 +48,17 @@ if [ -d "$LOG_DIR" ]; then
   fi
 fi
 
+# 6️⃣ Memory & Wiki Maintenance (added)
+# Run wiki lint and compile daily
+openclaw wiki lint
+openclaw wiki compile
+
+# Clean up old memory files (keep 7 days)
+find ~/openclaw/workspaces/workspace/memory -type f -mtime +7 -delete 2>/dev/null || true
+
+# Optionally search for duplicate or outdated entries
+openclaw memory_search query="maintenance" corpus=all | head -5
+
 # ==== AUTOMATED PROBLEM RESPONSE ====
 
 # When PM tasks are created:
