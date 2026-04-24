@@ -24,7 +24,7 @@ argocd app list -o name 2>/dev/null | while read -r app; do
     if [[ $status != *"OK"* ]]; then
       echo "Cluster issue detected in app: $app"
       # Create MC task for repo cleanup
-      openclaw sessions_spawn --task "Fix cluster issue in ${app}" --label "pm-task" --runtime subagent
+      # openclaw sessions_spawn --task "Fix cluster issue in ${app}" --label "pm-task" --runtime subagent
     fi
   fi
 done
@@ -34,7 +34,7 @@ if command -v mcporter >/dev/null 2>&1; then
   errors=$(mcporter list | grep -i "error" || true)
   if [ -n "$errors" ]; then
     echo "MCporter errors detected:"$errors
-    openclaw sessions_spawn --task "Fix MCP issues" --label "pm-task" --runtime subagent
+    # openclaw sessions_spawn --task "Fix MCP issues" --label "pm-task" --runtime subagent
   fi
 fi
 
@@ -44,7 +44,7 @@ if [ -d "$LOG_DIR" ]; then
   ERRORS=$(grep -i -E "error|fail|panic" "$LOG_DIR"/* 2>/dev/null | head -10)
   if [ -n "$ERRORS" ]; then
     echo "Errors detected in OpenClaw logs:"$ERRORS
-    openclaw sessions_spawn --task "Analyze and fix errors in OpenClaw logs" --label "log-expert" --runtime subagent
+    # openclaw sessions_spawn --task "Analyze and fix errors in OpenClaw logs" --label "log-expert" --runtime subagent
   fi
 fi
 
