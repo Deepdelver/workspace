@@ -1,54 +1,69 @@
-# GitOps Implementation Wiki: ~/k8s-stack with ArgoCD
+# GitOps Implementation Wiki: ~/k8s-stack with ArgoCD - RECOVERED 2026-04-25
 
 ## Overview
 - GitOps repo: `~/k8s-stack` (main branch)
-- GitOps tool: ArgoCD
-- Target cluster: MicroK8s (context: microk8s)
+- GitOps tool: **ArgoCD v2.14.0** (RECOVERED)
+- Target cluster: **MicroK8s v1.33.9** (Clean install - 2026-04-25)
 - Structure: apps/ subfolder contains per-app Kubernetes manifests
+- **ApplicationSet**: `apps-of-apps` auto-syncs all 38 apps from apps/ folder
 
-## Key Findings
-- **Cluster Status**: 1 node (frank-standard-pc-i440fx-piix-1996) Ready; Calico + CoreDNS Running; no LLM deployments found.
-- **ArgoCD**: Not yet installed on cluster; repo prepared for GitOps.
-- **Apps Directory**: Contains many existing apps; litellm-router added as new app.
-- **GitOps Flow**: Commit changes to main branch → ArgoCD detects → Applies manifests to cluster.
+## Key Findings (Post-Recovery)
+- **Cluster Status**: 1 node (frank-standard-pc-i440fx-piix-1996) Ready ✅; Calico + CoreDNS Running ✅
+- **ArgoCD**: ✅ Installed (v2.14.0) - 7 pods running
+  - argocd-server, argocd-application-controller, argocd-repo-server, etc.
+  - URL: https://argocd.deeps-home.duckdns.org
+  - Credentials: admin / Gizmo1987!
+- **Apps Directory**: 38 apps detected by ApplicationSet
+- **GitOps Flow**: Commit changes to main branch → ArgoCD detects → Applies manifests to cluster ✅
+
+## Recovery Process (2026-04-25)
+### Problem:
+- Calico networking failed: "error getting ClusterInformation: connection is unauthorized"
+- All pods stuck in Terminating/Pending (35+ hours)
+- ArgoCD not installed
+
+### Solution:
+1. **Full MicroK8s reset**: `sudo snap remove microk8s --purge`
+2. **Fresh install**: `sudo snap install microk8s --classic`
+3. **Run bootstrap script**: `cd ~/k8s-stack && bash start.sh`
+   - Installs: MetalLB, cert-manager, ArgoCD v2.14.0, NVIDIA GPU
+   - Creates ApplicationSet for GitOps
+   - Configures ArgoCD ingress + TLS
 
 ## Current Implementation
-- **Litellm-Router**: Namespace, Deployment, Service created in apps/litellm-router/ and committed.
-- **Next Steps**: Install ArgoCD, create ArgoCD App for litellm-router, and test sync.
+- **ArgoCD v2.14.0**: ✅ Installed and configured
+- **ApplicationSet**: ✅ "apps-of-apps" syncs 38 apps automatically
+- **Apps Status**:
+  - 22 Synced ✅ (cert-manager, crossplane, duckdns, etc.)
+  - 11 OutOfSync ⏳ (auto-syncing via automated policy)
+  - 5 Progressing ⏳ (deploying)
 
 ## GitOps Best Practices Applied
 - Commit all changes before cluster sync.
 - Use descriptive commit messages.
 - Separate app manifests per directory.
 - Use placeholders for images; replace before production.
-
-## Actions Taken
-- Verified cluster state with kubectl.
-- Created litellm-router manifests in apps/.
-- Committed changes to git.
-- Documented findings in wiki.
-
-## Next Steps
-1. Install ArgoCD on MicroK8s.
-2. Create ArgoCD App for litellm-router.
-3. Test GitOps sync from repo to cluster.
-4. Iterate with real images and config.
+- **Use start.sh script** for idempotent cluster bootstrapping.
 
 ## Commands Used
-- `kubectl get nodes/deployments/pods -A`
-- `git status/commit/push`
-- `ls -la ~/k8s-stack/apps/`
-- `cat deployment.yaml/service.yaml`
+- `kubectl get nodes/pods -A`
+- `kubectl -n argocd get applications`
+- `microk8s start/stop/status`
+- `bash ~/k8s-stack/start.sh`
 
 ## Risks/Considerations
-- ArgoCD not yet installed → manual kubectl apply for now.
-- Placeholder image → replace before production.
-- Namespace isolation → ensure RBAC if needed.
+- ✅ ArgoCD installed and working
+- ✅ Cluster healthy after full reset
+- ⏳ Some apps still syncing (OutOfSync/Progressing)
 
 ## Conclusion
-- GitOps repo is ready.
-- Cluster is healthy.
-- ArgoCD installation and app creation are next steps for automated sync.
+- ✅ **GitOps repo is ready and working!**
+- ✅ **Cluster is healthy after full recovery.**
+- ✅ **ArgoCD v2.14.0 + ApplicationSet successfully deployed.**
+- ✅ **38 apps auto-detected and syncing from ~/k8s-stack/apps/**
+
+---
+*Recovery completed: 2026-04-25 14:45 CEST*
 
 ---
 *Always commit changes to ~/k8s-stack before expecting ArgoCD to sync to cluster.*
