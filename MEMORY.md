@@ -181,3 +181,41 @@ Bij "unavailable" Zigbee lampen: altijd eerst fysieke schakelaars controleren.
 - Dream Theme: building futuristic cities [score=0.835 recalls=0 avg=0.620 source=memory/2026-04-17.md:15-15]
 <!-- openclaw-memory-promotion:memory:memory/2026-04-17.md:13:13 -->
 - I am still listening.## Dream Diary Entry [score=0.825 recalls=0 avg=0.620 source=memory/2026-04-17.md:13-13]
+
+---
+
+# ArgoCD Ingress Fix - 2026-04-25
+
+## Probleem
+ArgoCD URL (https://argocd.deeps-home.duckdns.org) gaf 502 Bad Gateway error.
+
+## Oorzaak
+In `~/k8s-stack/apps/ingresses/ingress.yaml`:
+- `nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"` (fout - ArgoCD draait op HTTP)
+- `nginx.ingress.kubernetes.io/ssl-passthrough: "true"` (niet nodig, nginx termineert TLS)
+
+ArgoCD server draait op poort 8080 (HTTP), maar de ingress probeerde HTTPS naar de backend.
+
+## Oplossing
+Ingress annotations aangepast:
+```yaml
+nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+nginx.ingress.kubernetes.io/ssl-redirect: "true"
+```
+
+Poort gewijzigd van 443 naar 80 in de backend service.
+
+## GitOps Workflow
+1. Fix toegepast in `~/k8s-stack/apps/ingresses/ingress.yaml`
+2. Commit & push naar main branch (commit: 715159c3)
+3. ArgoCD detecteerde wijziging (binnen 3 min)
+4. Auto-sync paste de wijziging toe
+
+## Test Resultaat
+- ✅ URL bereikbaar: https://argocd.deeps-home.duckdns.org
+- ✅ Geen 502 error meer
+- ✅ Login werkt (admin / Gizmo1987!)
+- ✅ CLI login succesvol
+
+## Les
+Bij GitOps clusters: pas altijd de repo aan, niet direct de cluster (wordt teruggedraaid)!
