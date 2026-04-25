@@ -1,72 +1,53 @@
-# HEARTBEAT.md
+# HEARTBEAT - Auto Task Detection & Repair
 
-# System maintenance heartbeat
-# Runs every 15-30 minutes (as configured)
-# Performs cleanup, health monitoring, cluster GitOps sync, log fixing, wiki upkeep, and MC system monitoring.
+## Config
+- Interval: 15-30 minuten
+- Task file: /tmp/repair-tasks.json
+- Report file: /tmp/task-report.txt
 
-# ==== SYSTEM MAINTENANCE ====
+## Stap 1: Detecteer problemen
+```bash
+echo "=== HEARTBEAT SCAN ($(date) ===" > /tmp/task-report.txt
 
-# 1️⃣ Cleanup temporary files (optional, safe)
-find /tmp -type f -name "openclaw_*" -mtime +1 -delete 2>/dev/null || true
-find ~/.openclaw/cache -type f -mtime +1 -delete 2>/dev/null || true
-
-# 2️⃣ Health check
-openclaw health --verbose
-
-# 3️⃣ Cluster health (GitOps + MCP)
-cd /home/frank/k8s-stack || { echo "k8s-stack not found"; exit 1; }
-git pull --quiet
-
-# Check ArgoCD status
-argocd app list -o name 2>/dev/null | while read -r app; do
-  if [ -n "$app" ]; then
-    status=$(argocd app status $app)
-    if [[ $status != *"OK"* ]]; then
-      echo "Cluster issue detected in app: $app"
-      # Create MC task for repo cleanup
-      # openclaw sessions_spawn --task "Fix cluster issue in ${app}" --label "pm-task" --runtime subagent
-    fi
-  fi
+# ArgoCD problemen
+argocd app list --grpc-web 2>/dev/null | grep -E "OutOfSync|Degraded|Progressing" | while read line; do
+  app=$(echo "$line" | awk '{print $1}' | sed "s|argocd/||")
+  echo "ARGOCD: $app ($(echo "$line" | awk '{print $2}')" >> /tmp/task-report.txt
 done
 
-# 4️⃣ MCporter-based repo/tool health checks
-if command -v mcporter >/dev/null 2>&1; then
-  errors=$(mcporter list | grep -i "error" || true)
-  if [ -n "$errors" ]; then
-    echo "MCporter errors detected:"$errors
-    # openclaw sessions_spawn --task "Fix MCP issues" --label "pm-task" --runtime subagent
-  fi
-fi
+# Pod problemen
+kubectl get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded 2>/dev/null | grep -v "NAMESPACE" | while read ns pod status restarts age; do
+  echo "POD: $ns/$pod ($status)" >> /tmp/task-report.txt
+done
+```
 
-# 5️⃣ Log scanning and alerting
-LOG_DIR="/home/frank/.openclaw/logs"
-if [ -d "$LOG_DIR" ]; then
-  ERRORS=$(grep -i -E "error|fail|panic" "$LOG_DIR"/* 2>/dev/null | head -10)
-  if [ -n "$ERRORS" ]; then
-    echo "Errors detected in OpenClaw logs:"$ERRORS
-    # openclaw sessions_spawn --task "Analyze and fix errors in OpenClaw logs" --label "log-expert" --runtime subagent
-  fi
-fi
+## Stap 2: Registreer in task file
+```bash
+jq --arg report "$(cat /tmp/task-report.txt)" \
+  '.lastScan = $report | .tasks = (.tasks + [{"time":(now | todate), "report": $report}] | unique)' \
+  /tmp/repair-tasks.json > /tmp/repair-tasks-tmp.json 2>/dev/null
+mv /tmp/repair-tasks-tmp.json /tmp/repair-tasks.json 2>/dev/null || true
+```
 
-# 6️⃣ Memory & Wiki Maintenance (added)
-# Run wiki lint and compile daily
-openclaw wiki lint
-openclaw wiki compile
+## Stap 3: Toon status
+```bash
+echo "=== HEARTBEAT STATUS ==="
+echo "Tasks: $(jq -r ".tasks | length" /tmp/repair-tasks.json 2>/dev/null || echo 0)"
+echo "Report:"
+cat /tmp/task-report.txt 2>/dev/null | head -20
+```
 
-# Clean up old memory files (keep 7 days)
-find ~/openclaw/workspaces/workspace/memory -type f -mtime +7 -delete 2>/dev/null || true
+## Stap 4: Repareer eenvoudige problemen direct
+```bash
+# OutOfSync apps syncen
+argocd app list --grpc-web 2>/dev/null | grep "OutOfSync" | awk '{print $1}' | sed "s|argocd/||" | while read app; do
+  echo "Syncing $app..."
+  kubectl apply -f ~/k8s-stack/apps/$app/ 2>/dev/null || true
+done
 
-# Optionally search for duplicate or outdated entries
-openclaw memory_search query="maintenance" corpus=all | head -5
+# Pending pods verwijderen
+kubectl get pods -A --field-selector=status.phase=Pending 2>/dev/null | grep -v "NAMESPACE" | awk '{print $1, $2}' | while read ns pod; do
+  kubectl delete pod -n $ns $pod --force --grace-period=0 2>/dev/null || true
+done
+```
 
-# ==== AUTOMATED PROBLEM RESPONSE ====
-
-# When PM tasks are created:
-# - Spawn PM agent with specific tasks
-# - Use mcporter commands for:
-#   - Repo health checks
-#   - Model configuration
-#   - Agent management
-
-# Example PM task handling:
-# openclaw sessions_spawn --agentId pm-subagent --task "Fix repo issue" --label "pm-sub" --runtime subagent
